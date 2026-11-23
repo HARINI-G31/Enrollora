@@ -48,7 +48,7 @@ export class Register {
       },
       error: (error) => {
         this.errorMessage =
-          error.error?.detail || error.error?.message || 'Registration failed. Please try again.';
+          error.error?.detail || error.error?.message || 'Registration failed. Please try again.'; // ?checks before accessing error properties
 
         this.isLoading = false;
 

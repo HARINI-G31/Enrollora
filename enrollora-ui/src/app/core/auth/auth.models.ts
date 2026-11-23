@@ -1,8 +1,8 @@
-export interface RegisterStudentRequest {
+export interface RegisterStudentRequest {  // backend DTOs
   name: string;
   email: string;
   password: string;
-  department: string;
+  department: string; 
   age: number;
   cgpa: number;
 }
