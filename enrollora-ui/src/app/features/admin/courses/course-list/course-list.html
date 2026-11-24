@@ -1,4 +1,6 @@
+
 <div class="course-page">
+
   <!-- Page Header -->
   <div class="page-header">
     <div>
@@ -7,11 +9,29 @@
       <p>Manage courses, fees, capacity and availability.</p>
     </div>
 
-    <button class="btn-add"><span>+</span> Add New Course</button>
+    <button class="btn-add" (click)="openAddCourse()">
+      <span>+</span> Add New Course
+    </button>
   </div>
+
+  <!-- Success Message -->
+  @if (successMessage()) {
+    <div class="success-message">
+      <span>✓</span>
+      {{ successMessage() }}
+    </div>
+  }
+
+  <!-- Course Action Error -->
+  @if (courseActionError()) {
+    <div class="form-error">
+      {{ courseActionError() }}
+    </div>
+  }
 
   <!-- Summary Cards -->
   <div class="summary-grid">
+
     <div class="summary-card purple">
       <div class="summary-icon">📚</div>
       <div>
@@ -32,7 +52,9 @@
       <div class="summary-icon">🪑</div>
       <div>
         <span>Available Seats</span>
-        <h2>{{ courses().reduce((total, course) => total + course.availableSeats, 0) }}</h2>
+        <h2>
+          {{ courses().reduce((total, course) => total + course.availableSeats, 0) }}
+        </h2>
       </div>
     </div>
 
@@ -40,52 +62,236 @@
       <div class="summary-icon">✓</div>
       <div>
         <span>Active Courses</span>
-        <h2>{{ courses().filter((course) => course.isActive).length }}</h2>
+        <h2>
+          {{ courses().filter((course) => course.isActive).length }}
+        </h2>
       </div>
     </div>
+
   </div>
 
-  <!-- Course Table -->
+  <!-- ====================================== -->
+  <!-- FILTER COURSES -->
+  <!-- ====================================== -->
+
+  <div class="filter-card">
+
+    <div class="filter-header">
+      <div>
+        <h2>Filter Courses</h2>
+        <p>Search and filter courses using different criteria.</p>
+      </div>
+
+      <span class="filter-icon">⚙</span>
+    </div>
+
+    <form [formGroup]="filterForm" (ngSubmit)="applyFilters()">
+
+      <!-- Search -->
+      <div class="filter-search-group">
+
+        <label for="courseSearch">Search Course</label>
+
+        <div class="search-input-wrapper">
+          <span>⌕</span>
+
+          <input
+            id="courseSearch"
+            type="text"
+            formControlName="search"
+            placeholder="Search by course name or ID..."
+          >
+        </div>
+
+      </div>
+
+      <!-- Filter Fields -->
+      <div class="filter-grid">
+
+        <!-- Status -->
+        <div class="filter-group">
+
+          <label for="courseStatus">Course Status</label>
+
+          <select
+            id="courseStatus"
+            formControlName="isActive">
+
+            <option [ngValue]="null">All Statuses</option>
+            <option [ngValue]="true">Active</option>
+            <option [ngValue]="false">Inactive</option>
+
+          </select>
+
+        </div>
+
+        <!-- Availability -->
+        <div class="filter-group">
+
+          <label for="courseAvailability">Availability</label>
+
+          <select
+            id="courseAvailability"
+            formControlName="availability">
+
+            <option value="">All Availability</option>
+            <option value="available">Available Seats</option>
+            <option value="full">Fully Enrolled</option>
+
+          </select>
+
+        </div>
+
+        <!-- Minimum Fees -->
+        <div class="filter-group">
+
+          <label for="minFees">Minimum Fees (₹)</label>
+
+          <input
+            id="minFees"
+            type="number"
+            formControlName="minFees"
+            placeholder="Minimum amount"
+            min="0"
+          >
+
+        </div>
+
+        <!-- Maximum Fees -->
+        <div class="filter-group">
+
+          <label for="maxFees">Maximum Fees (₹)</label>
+
+          <input
+            id="maxFees"
+            type="number"
+            formControlName="maxFees"
+            placeholder="Maximum amount"
+            min="0"
+          >
+
+        </div>
+
+        <!-- Minimum Capacity -->
+        <div class="filter-group">
+
+          <label for="minCapacity">Minimum Capacity</label>
+
+          <input
+            id="minCapacity"
+            type="number"
+            formControlName="minCapacity"
+            placeholder="Minimum seats"
+            min="0"
+          >
+
+        </div>
+
+        <!-- Maximum Capacity -->
+        <div class="filter-group">
+
+          <label for="maxCapacity">Maximum Capacity</label>
+
+          <input
+            id="maxCapacity"
+            type="number"
+            formControlName="maxCapacity"
+            placeholder="Maximum seats"
+            min="0"
+          >
+
+        </div>
+
+      </div>
+
+      <!-- Filter Actions -->
+      <div class="filter-actions">
+
+        <button type="submit" class="btn-filter">
+          <span>⌕</span> Apply Filters
+        </button>
+
+        <button
+          type="button"
+          class="btn-reset-filter"
+          (click)="resetFilters()">
+
+          ↻ Reset
+
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+  <!-- ====================================== -->
+  <!-- COURSE TABLE -->
+  <!-- ====================================== -->
+
   <div class="table-card">
+
     <div class="table-header">
       <div>
         <h2>All Courses</h2>
         <p>View and manage your available courses.</p>
       </div>
 
-      <span class="record-count"> {{ totalRecords() }} courses </span>
+      <span class="record-count">
+        {{ totalRecords() }} courses
+      </span>
     </div>
 
     <!-- Loading -->
     @if (isLoading()) {
+
       <div class="state-message">
         <div class="loader"></div>
         <p>Loading courses...</p>
       </div>
+
     }
 
     <!-- Error -->
     @else if (errorMessage()) {
+
       <div class="state-message error-state">
         <span>⚠️</span>
         <p>{{ errorMessage() }}</p>
-        <button class="btn-retry" (click)="loadCourses()">Try Again</button>
+
+        <button class="btn-retry" (click)="loadCourses()">
+          Try Again
+        </button>
       </div>
+
     }
 
     <!-- Empty -->
     @else if (courses().length === 0) {
+
       <div class="state-message empty-state">
         <span>📚</span>
         <h3>No courses found</h3>
-        <p>There are currently no courses to display.</p>
+        <p>Try changing your search or filter criteria.</p>
+
+        <button
+          class="btn-retry"
+          type="button"
+          (click)="resetFilters()">
+          Clear Filters
+        </button>
       </div>
+
     }
 
     <!-- Course Data -->
     @else {
+
       <div class="table-responsive">
+
         <table class="course-table">
+
           <thead>
             <tr>
               <th>COURSE</th>
@@ -94,95 +300,663 @@
               <th>ENROLLMENT</th>
               <th>AVAILABLE SEATS</th>
               <th>STATUS</th>
+              <th>ACTION</th>
             </tr>
           </thead>
 
           <tbody>
+
             @for (course of courses(); track course.courseId) {
+
               <tr>
+
+                <!-- Course Information -->
                 <td>
                   <div class="course-info">
+
                     <div class="course-avatar">
                       {{ course.courseName.charAt(0).toUpperCase() }}
                     </div>
+
                     <div>
                       <strong>{{ course.courseName }}</strong>
                       <small>Course ID: #{{ course.courseId }}</small>
                     </div>
+
                   </div>
                 </td>
 
+                <!-- Duration -->
                 <td>
                   <span class="duration">
                     {{ course.duration }}
                   </span>
                 </td>
 
+                <!-- Fees -->
                 <td>
-                  <strong class="fees"> ₹{{ course.fees | number: '1.0-2' }} </strong>
+                  <strong class="fees">
+                    ₹{{ course.fees | number: '1.0-2' }}
+                  </strong>
                 </td>
 
+                <!-- Enrollment -->
                 <td>
                   <div class="enrollment-info">
-                    <strong> {{ course.enrolledCount }} / {{ course.capacity }} </strong>
+
+                    <strong>
+                      {{ course.enrolledCount }} / {{ course.capacity }}
+                    </strong>
+
                     <div class="progress-track">
                       <div
                         class="progress-fill"
                         [style.width.%]="
-                          course.capacity > 0 ? (course.enrolledCount / course.capacity) * 100 : 0
-                        "
-                      ></div>
+                          course.capacity > 0
+                            ? (course.enrolledCount / course.capacity) * 100
+                            : 0
+                        ">
+                      </div>
                     </div>
+
                   </div>
                 </td>
 
+                <!-- Available Seats -->
                 <td>
                   <span
                     class="seats-badge"
-                    [class.low-seats]="course.availableSeats <= 5 && course.availableSeats > 0"
-                    [class.no-seats]="course.availableSeats === 0"
-                  >
+                    [class.low-seats]="
+                      course.availableSeats <= 5 &&
+                      course.availableSeats > 0
+                    "
+                    [class.no-seats]="course.availableSeats === 0">
+
                     {{ course.availableSeats }}
+
                   </span>
                 </td>
 
+                <!-- Status -->
                 <td>
                   <span
                     class="status-badge"
                     [class.active]="course.isActive"
-                    [class.inactive]="!course.isActive"
-                  >
+                    [class.inactive]="!course.isActive">
+
                     <span class="status-dot"></span>
+
                     {{ course.isActive ? 'Active' : 'Inactive' }}
+
                   </span>
                 </td>
+
+                <!-- Actions -->
+                <td>
+                  <div class="course-actions">
+
+                    <button
+                      type="button"
+                      class="btn-view"
+                      (click)="viewCourse(course.courseId)">
+                      View
+                    </button>
+
+                    <button
+                      type="button"
+                      class="btn-edit"
+                      (click)="editCourse(course.courseId)">
+                      Edit
+                    </button>
+
+                    <button
+                      type="button"
+                      class="btn-delete"
+                      (click)="deleteCourse(course.courseId)"
+                      [disabled]="!course.isActive">
+                      Delete
+                    </button>
+
+                  </div>
+                </td>
+
               </tr>
+
             }
+
           </tbody>
+
         </table>
+
       </div>
+
     }
 
     <!-- Pagination -->
     @if (!isLoading() && !errorMessage() && totalRecords() > 0) {
+
       <div class="pagination">
+
         <span class="pagination-info">
           Page {{ pageNumber() }} of {{ totalPages() }}
-          <span class="total-info">({{ totalRecords() }} courses)</span>
+
+          <span class="total-info">
+            ({{ totalRecords() }} courses)
+          </span>
         </span>
 
         <div class="pagination-actions">
-          <button class="page-btn" (click)="previousPage()" [disabled]="pageNumber() === 1">
+
+          <button
+            class="page-btn"
+            (click)="previousPage()"
+            [disabled]="pageNumber() === 1">
+
             ← Previous
+
           </button>
 
-          <span class="current-page">{{ pageNumber() }}</span>
+          <span class="current-page">
+            {{ pageNumber() }}
+          </span>
 
-          <button class="page-btn" (click)="nextPage()" [disabled]="pageNumber() >= totalPages()">
+          <button
+            class="page-btn"
+            (click)="nextPage()"
+            [disabled]="pageNumber() >= totalPages()">
+
             Next →
+
+          </button>
+
+        </div>
+
+      </div>
+
+    }
+
+  </div>
+
+  <!-- ====================================== -->
+  <!-- ADD COURSE MODAL -->
+  <!-- ====================================== -->
+
+  @if (showAddCourse()) {
+
+    <div class="modal-overlay" (click)="closeAddCourse()">
+
+      <div
+        class="course-modal"
+        (click)="$event.stopPropagation()">
+
+        <div class="modal-header">
+
+          <div>
+            <span class="eyebrow">COURSE MANAGEMENT</span>
+            <h2>Add New Course</h2>
+            <p>Enter the details to create a new course.</p>
+          </div>
+
+          <button
+            type="button"
+            class="modal-close"
+            (click)="closeAddCourse()"
+            [disabled]="isSubmitting()">
+            ×
+          </button>
+
+        </div>
+
+        <form
+          [formGroup]="courseForm"
+          (ngSubmit)="submitCourse()">
+
+          <div class="modal-body">
+
+            <div class="form-group">
+              <label for="courseName">Course Name *</label>
+
+              <input
+                id="courseName"
+                type="text"
+                formControlName="courseName"
+                placeholder="Enter course name">
+
+              @if (
+                courseForm.controls.courseName.touched &&
+                courseForm.controls.courseName.hasError('required')
+              ) {
+                <small class="field-error">
+                  Course name is required.
+                </small>
+              }
+
+              @if (courseForm.controls.courseName.hasError('maxlength')) {
+                <small class="field-error">
+                  Maximum 150 characters allowed.
+                </small>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="duration">Duration *</label>
+
+              <input
+                id="duration"
+                type="text"
+                formControlName="duration"
+                placeholder="Example: 40 Days">
+
+              @if (
+                courseForm.controls.duration.touched &&
+                courseForm.controls.duration.hasError('required')
+              ) {
+                <small class="field-error">
+                  Duration is required.
+                </small>
+              }
+
+              @if (courseForm.controls.duration.hasError('maxlength')) {
+                <small class="field-error">
+                  Maximum 80 characters allowed.
+                </small>
+              }
+            </div>
+
+            <div class="form-row">
+
+              <div class="form-group">
+                <label for="fees">Course Fees (₹) *</label>
+
+                <input
+                  id="fees"
+                  type="number"
+                  formControlName="fees"
+                  min="0">
+
+                @if (
+                  courseForm.controls.fees.touched &&
+                  courseForm.controls.fees.invalid
+                ) {
+                  <small class="field-error">
+                    Fees cannot be negative.
+                  </small>
+                }
+              </div>
+
+              <div class="form-group">
+                <label for="capacity">Capacity *</label>
+
+                <input
+                  id="capacity"
+                  type="number"
+                  formControlName="capacity"
+                  min="1"
+                  max="100000">
+
+                @if (
+                  courseForm.controls.capacity.touched &&
+                  courseForm.controls.capacity.invalid
+                ) {
+                  <small class="field-error">
+                    Capacity must be between 1 and 100000.
+                  </small>
+                }
+              </div>
+
+            </div>
+
+            <div class="active-option">
+              <label>
+                <input
+                  type="checkbox"
+                  formControlName="isActive">
+                Active Course
+              </label>
+            </div>
+
+            @if (addCourseError()) {
+              <div class="form-error">
+                {{ addCourseError() }}
+              </div>
+            }
+
+          </div>
+
+          <div class="modal-actions">
+
+            <button
+              type="button"
+              class="btn-cancel"
+              (click)="closeAddCourse()"
+              [disabled]="isSubmitting()">
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              class="btn-submit"
+              [disabled]="isSubmitting()">
+
+              {{ isSubmitting() ? 'Adding...' : 'Add Course' }}
+
+            </button>
+
+          </div>
+
+        </form>
+
+      </div>
+
+    </div>
+
+  }
+
+  <!-- ====================================== -->
+  <!-- VIEW COURSE MODAL -->
+  <!-- ====================================== -->
+
+  @if (showViewCourse()) {
+
+    <div class="modal-overlay" (click)="closeViewCourse()">
+
+      <div
+        class="course-modal"
+        (click)="$event.stopPropagation()">
+
+        <div class="modal-header">
+
+          <div>
+            <span class="eyebrow">COURSE DETAILS</span>
+            <h2>View Course</h2>
+            <p>Complete course information.</p>
+          </div>
+
+          <button
+            type="button"
+            class="modal-close"
+            (click)="closeViewCourse()">
+            ×
+          </button>
+
+        </div>
+
+        <div class="modal-body">
+
+          @if (isViewingCourse()) {
+
+            <div class="state-message">
+              <div class="loader"></div>
+              <p>Loading course details...</p>
+            </div>
+
+          }
+
+          @else if (viewCourseError()) {
+
+            <div class="form-error">
+              {{ viewCourseError() }}
+            </div>
+
+          }
+
+          @else if (selectedCourse(); as course) {
+
+            <div class="course-detail-grid">
+
+              <div class="detail-item">
+                <label>Course ID</label>
+                <strong>#{{ course.courseId }}</strong>
+              </div>
+
+              <div class="detail-item">
+                <label>Course Name</label>
+                <strong>{{ course.courseName }}</strong>
+              </div>
+
+              <div class="detail-item">
+                <label>Duration</label>
+                <strong>{{ course.duration }}</strong>
+              </div>
+
+              <div class="detail-item">
+                <label>Fees</label>
+                <strong>₹{{ course.fees | number: '1.0-2' }}</strong>
+              </div>
+
+              <div class="detail-item">
+                <label>Capacity</label>
+                <strong>{{ course.capacity }}</strong>
+              </div>
+
+              <div class="detail-item">
+                <label>Enrolled Students</label>
+                <strong>{{ course.enrolledCount }}</strong>
+              </div>
+
+              <div class="detail-item">
+                <label>Available Seats</label>
+                <strong>{{ course.availableSeats }}</strong>
+              </div>
+
+              <div class="detail-item">
+                <label>Status</label>
+
+                <span
+                  class="status-badge"
+                  [class.active]="course.isActive"
+                  [class.inactive]="!course.isActive">
+
+                  <span class="status-dot"></span>
+                  {{ course.isActive ? 'Active' : 'Inactive' }}
+
+                </span>
+              </div>
+
+            </div>
+
+          }
+
+        </div>
+
+        <div class="modal-actions">
+          <button
+            type="button"
+            class="btn-cancel"
+            (click)="closeViewCourse()">
+            Close
           </button>
         </div>
+
       </div>
-    }
-  </div>
+
+    </div>
+
+  }
+
+  <!-- ====================================== -->
+  <!-- EDIT COURSE MODAL -->
+  <!-- ====================================== -->
+
+  @if (showEditCourse()) {
+
+    <div class="modal-overlay" (click)="closeEditCourse()">
+
+      <div
+        class="course-modal"
+        (click)="$event.stopPropagation()">
+
+        <div class="modal-header">
+
+          <div>
+            <span class="eyebrow">COURSE MANAGEMENT</span>
+            <h2>Edit Course</h2>
+            <p>Update the course information below.</p>
+          </div>
+
+          <button
+            type="button"
+            class="modal-close"
+            (click)="closeEditCourse()"
+            [disabled]="isUpdatingCourse()">
+            ×
+          </button>
+
+        </div>
+
+        @if (isLoadingCourseForEdit()) {
+
+          <div class="state-message">
+            <div class="loader"></div>
+            <p>Loading course information...</p>
+          </div>
+
+        }
+
+        @else {
+
+          <form
+            [formGroup]="courseForm"
+            (ngSubmit)="submitEditCourse()">
+
+            <div class="modal-body">
+
+              <div class="form-group">
+                <label>Course ID</label>
+
+                <input
+                  type="text"
+                  [value]="editingCourseId()"
+                  disabled>
+              </div>
+
+              <div class="form-group">
+                <label for="editCourseName">Course Name *</label>
+
+                <input
+                  id="editCourseName"
+                  type="text"
+                  formControlName="courseName"
+                  placeholder="Enter course name">
+
+                @if (
+                  courseForm.controls.courseName.touched &&
+                  courseForm.controls.courseName.invalid
+                ) {
+                  <small class="field-error">
+                    Course name is required (maximum 150 characters).
+                  </small>
+                }
+              </div>
+
+              <div class="form-group">
+                <label for="editDuration">Duration *</label>
+
+                <input
+                  id="editDuration"
+                  type="text"
+                  formControlName="duration"
+                  placeholder="Example: 40 Days">
+
+                @if (
+                  courseForm.controls.duration.touched &&
+                  courseForm.controls.duration.invalid
+                ) {
+                  <small class="field-error">
+                    Duration is required (maximum 80 characters).
+                  </small>
+                }
+              </div>
+
+              <div class="form-row">
+
+                <div class="form-group">
+                  <label for="editFees">Course Fees (₹) *</label>
+
+                  <input
+                    id="editFees"
+                    type="number"
+                    formControlName="fees"
+                    min="0">
+
+                  @if (
+                    courseForm.controls.fees.touched &&
+                    courseForm.controls.fees.invalid
+                  ) {
+                    <small class="field-error">
+                      Fees must be zero or greater.
+                    </small>
+                  }
+                </div>
+
+                <div class="form-group">
+                  <label for="editCapacity">Capacity *</label>
+
+                  <input
+                    id="editCapacity"
+                    type="number"
+                    formControlName="capacity"
+                    min="1"
+                    max="100000">
+
+                  @if (
+                    courseForm.controls.capacity.touched &&
+                    courseForm.controls.capacity.invalid
+                  ) {
+                    <small class="field-error">
+                      Capacity must be between 1 and 100000.
+                    </small>
+                  }
+                </div>
+
+              </div>
+
+              <div class="active-option">
+                <label>
+                  <input
+                    type="checkbox"
+                    formControlName="isActive">
+                  Active Course
+                </label>
+              </div>
+
+              @if (editCourseError()) {
+                <div class="form-error">
+                  {{ editCourseError() }}
+                </div>
+              }
+
+            </div>
+
+            <div class="modal-actions">
+
+              <button
+                type="button"
+                class="btn-cancel"
+                (click)="closeEditCourse()"
+                [disabled]="isUpdatingCourse()">
+                Cancel
+              </button>
+
+              <button
+                type="submit"
+                class="btn-submit"
+                [disabled]="isUpdatingCourse()">
+
+                {{ isUpdatingCourse() ? 'Updating...' : 'Save Changes' }}
+
+              </button>
+
+            </div>
+
+          </form>
+
+        }
+
+      </div>
+
+    </div>
+
+  }
+
 </div>
